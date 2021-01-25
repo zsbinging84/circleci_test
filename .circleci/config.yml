@@ -19,11 +19,14 @@ jobs:
           name: sleep for waiting launch db
           command: sleep 1
       - run:
+          name: update yarn
+          command: yarn install --check-files
+      - run:
           name: rails db:create and db:migrate
-          command: docker-compose exec web rails db:create db:migrate
+          command: docker-compose run web rails db:create db:migrate
       - run:
           name: rspec
-          command: docker-compose exec web rspec
+          command: docker-compose run web rspec
       - run:
           name: docker-compose down
           command: docker-compose down    
