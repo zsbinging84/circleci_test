@@ -27,9 +27,3 @@ jobs:
       - run:
           name: docker-compose down
           command: docker-compose down
-
-
-workflows:
-  test-and-deploy:
-    jobs:
-      - test
