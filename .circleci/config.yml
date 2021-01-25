@@ -1,125 +1,57 @@
-
-# Ruby CircleCI 2.0 configuration file
-#
-# Check https://circleci.com/docs/2.0/language-ruby/ for more details
-
 version: 2.1
-jobs:
-  test:
-    machine: true
-    working_directory: ~/repo
-    steps:
-      - checkout
-      - run:
-          name: Install Docker Compose
-          command: |
-            curl -L https://github.com/docker/compose/releases/download/1.19.0/docker-compose-`uname -s`-`uname -m` > ~/docker-compose
-            chmod +x ~/docker-compose
-            sudo mv ~/docker-compose /usr/local/bin/docker-compose
-      - run:
-          name: docker-compose build
-          command: |
-            set -x
-            docker-compose build
-      - run:
-          name: docker-compose up
-          command: |
-            set -x
-            docker-compose up -d
-      - run:
-          name: test
-          command: |
-            mkdir /tmp/test-results
-            docker-compose run rails bundle install
-            docker-compose run rails bundle exec rake db:create RAILS_ENV=test
-            docker-compose run rails bundle exec rake db:migrate RAILS_ENV=test
-            TEST_FILES="$(circleci tests glob 'spec/**/*_spec.rb' | circleci tests split --split-by=timings)"
-            docker-compose run rails bundle exec rspec --format progress \
-            --out /tmp/test-results/rspec.xml \
-            $TEST_FILES
-      - run:
-          name: docker-compose stop
-          command: |
-            set -x
-            docker-compose stop
-      - run:
-          name: docker-compose down
-          command: docker-compose down
-      - store_test_results:
-          path: /tmp/test-results
-      - store_artifacts:
-          path: /tmp/test-results
-          destination: test-results
-
-  staging_deploy:
-    docker:
-      - image: hashicorp/terraform:0.12.18
-    steps:
-      - checkout
-      - run:
-          command: |
-            GIT_SSH_COMMAND='ssh -i ~/.ssh/id_rsa'
-            git clone git@github.com:mr-myself/terraform_ecs.git ~/terraform_ecs
-      - run:
-          name: Get terraform
-          command: terraform get ~/terraform_ecs/staging
-      - run:
-          name: Init terraform
-          command: terraform init ~/terraform_ecs/staging
-      - run:
-          name: Apply terraform
-          command: terraform apply -input=false -auto-approve -var "staging_database_password=${STAGING_DATABASE_PASSWORD}" -var "staging_secret_key_base=${SECRET_KEY_BASE}" -var "repository_tag=${CIRCLE_SHA1}" -var-file=/root/terraform_ecs/staging/terraform.tfvars ~/terraform_ecs/staging
-
-  production_deploy:
-    docker:
-      - image: hashicorp/terraform:0.12.6
-    steps:
-      - checkout
-      - run:
-          command: |
-            GIT_SSH_COMMAND='ssh -i ~/.ssh/id_rsa'
-            git clone git@github.com:mr-myself/terraform_ecs.git ~/terraform_ecs
-      - run:
-          name: Get terraform
-          command: terraform get ~/terraform_ecs/production
-      - run:
-          name: Init terraform
-          command: terraform init ~/terraform_ecs/production
-      - run:
-          name: Apply terraform
-          command: terraform apply -input=false -auto-approve -var "production_database_password=${PRODUCTION_DATABASE_PASSWORD}" -var "production_secret_key_base=${SECRET_KEY_BASE}" -var-file=/root/terraform_ecs/production/terraform.tfvars ~/terraform_ecs/production
 
 orbs:
-  aws-ecr: circleci/aws-ecr@6.6.0
-  aws-ecs: circleci/aws-ecs@1.0.4
+  ruby: circleci/ruby@1.1.0
+  node: circleci/node@2
+
+jobs:
+  build:
+    docker:
+      - image: cimg/ruby:2.7-node
+    steps:
+      - checkout
+      - ruby/install-deps
+      # Store bundle cache
+      - node/install-packages:
+          pkg-manager: yarn
+          cache-key: "yarn.lock"
+  test:
+    parallelism: 3
+    docker:
+      - image: cimg/ruby:2.7-node
+      - image: circleci/postgres:9.5-alpine
+        environment:
+          POSTGRES_USER: circleci-demo-ruby
+          POSTGRES_DB: rails_blog_test
+          POSTGRES_PASSWORD: ""
+    environment:
+      BUNDLE_JOBS: "3"
+      BUNDLE_RETRY: "3"
+      PGHOST: 127.0.0.1
+      PGUSER: circleci-demo-ruby
+      PGPASSWORD: ""
+      RAILS_ENV: test
+    steps:
+      - checkout
+      - ruby/install-deps
+      - node/install-packages:
+          pkg-manager: yarn
+          cache-key: "yarn.lock"
+      - run:
+          name: Wait for DB
+          command: dockerize -wait tcp://localhost:5432 -timeout 1m
+      - run:
+          name: Database setup
+          command: bundle exec rails db:schema:load --trace
+      # Run rspec in parallel
+      - ruby/rspec-test
+      - ruby/rubocop-check
 
 workflows:
-  test-and-deploy:
+  version: 2
+  build_and_test:
     jobs:
-      - test
-      - aws-ecr/build-and-push-image:
-          filters:
-            branches:
-              only: master
-          account-url: AWS_ACCOUNT_URL
-          repo: your_repository_name
-          region: AWS_DEFAULT_REGION
-          aws-access-key-id: AWS_ACCESS_KEY_ID
-          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
-          tag: "${CIRCLE_SHA1}"
-          extra-build-args: "--build-arg RAILS_MASTER_KEY=${RAILS_MASTER_KEY} --build-arg MYSQL_HOST=${STAGING_DATABASE_HOST} --build-arg MYSQL_PASSWORD=${STAGING_DATABASE_PASSWORD}"
-      - staging_deploy:
+      - build
+      - test:
           requires:
-              - test
-              - aws-ecr/build-and-push-image
-          filters:
-            branches:
-              only: master
-      - production_deploy:
-          requires:
-              - test
-          filters:
-            tags:
-              only: /^v*/
-            branches:
-              ignore: /.*/
+            - build
