@@ -24,9 +24,20 @@ jobs:
       - run:
           name: rails db:create and db:migrate
           command: docker-compose run web rails db:create db:migrate
+      # run tests!
       - run:
-          name: rspec
-          command: docker-compose run web rails rspec
+          name: Run rspec
+          command: |
+            mkdir /tmp/test-results
+            TEST_FILES="$(circleci tests glob "spec/**/*_spec.rb" | \
+              circleci tests split --split-by=timings)"
+
+            bundle exec rspec \
+              --format progress \
+              --format RspecJunitFormatter \
+              --out /tmp/test-results/rspec.xml \
+              --format progress \
+              $TEST_FILES
       - run:
           name: docker-compose down
           command: docker-compose down    
