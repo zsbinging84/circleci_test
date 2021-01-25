@@ -32,6 +32,7 @@ jobs:
       PGUSER: circleci-demo-ruby
       PGPASSWORD: ""
       RAILS_ENV: test
+      DATABASE_PASSWORD: "postgres"
     steps:
       - checkout
       - ruby/install-deps
