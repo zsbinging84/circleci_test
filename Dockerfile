@@ -20,7 +20,6 @@ RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
 WORKDIR /circleci_test
 COPY Gemfile /circleci_test
 COPY Gemfile.lock /circleci_test
-COPY yarn.lock /circleci_test
 
 RUN bundle install
 
