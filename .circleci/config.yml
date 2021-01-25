@@ -33,7 +33,7 @@ jobs:
             docker-compose run web bundle exec rake db:create RAILS_ENV=test
             docker-compose run web bundle exec rake db:migrate RAILS_ENV=test
             TEST_FILES="$(circleci tests glob 'spec/**/*_spec.rb' | circleci tests split --split-by=timings)"
-            docker-compose run rails bundle exec rspec --format progress \
+            docker-compose run web bundle exec rspec --format progress \
             --out /tmp/test-results/rspec.xml \
             $TEST_FILES
       - run:
