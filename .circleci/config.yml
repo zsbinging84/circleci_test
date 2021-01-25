@@ -35,7 +35,6 @@ jobs:
               --format progress \
               --format RspecJunitFormatter \
               --out /tmp/test-results/rspec.xml \
-              --format progress \
               $TEST_FILES
       - run:
           name: docker-compose down
