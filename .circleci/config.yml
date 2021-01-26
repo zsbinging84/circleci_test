@@ -11,7 +11,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - v1-dependencies-{{ checksum "docker-compose.yaml" }}
+            - v1-dependencies-{{ checksum ".circleci/config.yml" }}
             # fallback to using the latest cache if no exact match is found
             - v1-dependencies-
       - run:
@@ -32,7 +32,7 @@ jobs:
       - save_cache:
           paths:
             - ./vendor/bundle
-          key: v1-dependencies-{{ checksum "docker-compose.yaml" }}  
+          key: v1-dependencies-{{ checksum ".circleci/config.yml" }}  
       # run tests!
       - run:
           name: Run Tests
