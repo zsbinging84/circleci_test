@@ -29,10 +29,6 @@ jobs:
       - run:
           name: rails db:create and db:migrate
           command: docker-compose run web rails db:create db:migrate
-      - run:
-          name: install dependencies
-          command: |
-            docker-compose run web bundle install --jobs=4 --retry=3 --path vendor/bundle
       - save_cache:
           paths:
             - ./vendor/bundle
@@ -40,7 +36,7 @@ jobs:
       # run tests!
       - run:
           name: Run Tests
-          command: |
+          command: 
             docker-compose run web rails test 
       - run:
           name: docker-compose down
