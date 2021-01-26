@@ -9,6 +9,11 @@ jobs:
       image: circleci/classic:edge
     steps:
       - checkout
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "Gemfile.lock" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
       - run:
           name: docker-compose build
           command: docker-compose build
@@ -24,33 +29,19 @@ jobs:
       - run:
           name: rails db:create and db:migrate
           command: docker-compose run web rails db:create db:migrate
-      # Download and cache dependencies
-      - restore_cache:
-          keys:
-            - v1-dependencies-{{ checksum "Gemfile.lock" }}
-            # fallback to using the latest cache if no exact match is found
-            - v1-dependencies-
-
       - run:
           name: install dependencies
           command: |
-            bundle install --jobs=4 --retry=3 --path vendor/bundle
+            docker-compose run web bundle install --jobs=4 --retry=3 --path vendor/bundle
       - save_cache:
           paths:
             - ./vendor/bundle
-          key: v1-dependencies-{{ checksum "Gemfile.lock" }}
+          key: v1-dependencies-{{ checksum "Gemfile.lock" }}  
       # run tests!
       - run:
-          name: Run rspec
+          name: Run Tests
           command: |
-            mkdir /tmp/test-results
-            TEST_FILES="$(circleci tests glob "spec/**/*_spec.rb" | \
-              circleci tests split --split-by=timings)"
-            docker-compose run web rails rspec \
-              --format progress \
-              --format RspecJunitFormatter \
-              --out /tmp/test-results/rspec.xml \
-              $TEST_FILES
+            docker-compose run web rails test 
       - run:
           name: docker-compose down
           command: docker-compose down    
