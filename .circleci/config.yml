@@ -11,7 +11,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - v1-dependencies-{{ checksum "Gemfile.lock" }}
+            - v1-dependencies-{{ checksum "docker-compose" }}
             # fallback to using the latest cache if no exact match is found
             - v1-dependencies-
       - run:
@@ -32,7 +32,7 @@ jobs:
       - save_cache:
           paths:
             - ./vendor/bundle
-          key: v1-dependencies-{{ checksum "Gemfile.lock" }}  
+          key: v1-dependencies-{{ checksum "docker-compose" }}  
       # run tests!
       - run:
           name: Run Tests
