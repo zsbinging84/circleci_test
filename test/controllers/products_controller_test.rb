@@ -43,6 +43,6 @@ class ProductsControllerTest < ActionDispatch::IntegrationTest
       delete product_url(@product)
     end
 
-    assert_redirected_to products_url
+    assert_redirected_to products_ur
   end
 end
