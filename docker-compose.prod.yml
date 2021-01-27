@@ -1,0 +1,18 @@
+Dversion: '3'
+
+services:
+  web:
+    build: .
+    volumes:
+      - .:/circleci_test
+    ports:
+      - "80:3000"
+    environment:
+      - 'DATABASE_PASSWORD=postgres'
+      - 'RAILS_ENV=production'
+    depends_on:
+      - db
+    links:
+      - db
+    stdin_open: true
+    tty: true
