@@ -9,6 +9,5 @@ services:
       - "80:3000"
     environment:
       - 'RAILS_ENV=production'
-      - 'RAILS_MASTER_KEY=${{secrets.RAILS_MASTER_KEY}}'
     stdin_open: true
     tty: true
