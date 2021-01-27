@@ -15,18 +15,18 @@
 # gem 'pg'
 #
 default: &default
-  adapter: postgresql
-  encoding: unicode
-  host: db
-  user: postgres
-  port: 5432
-  password: <%= ENV.fetch("DATABASE_PASSWORD") %> 
   # For details on connection pooling, see Rails configuration guide
   # https://guides.rubyonrails.org/configuring.html#database-pooling
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
 
 development:
   <<: *default
+  adapter: postgresql
+  encoding: unicode
+  host: db
+  user: postgres
+  port: 5432
+  password: postgres
   database: circleci_test_development
 
   # The specified database role being used to connect to postgres.
@@ -84,6 +84,12 @@ test:
 #
 production:
   <<: *default
-  database: circleci_test_production
-  username: circleci_test
-  password: <%= ENV['CIRCLECI_TEST_DATABASE_PASSWORD'] %>
+  adapter: mysql2
+  encoding: utf8
+  host: <%= Rails.application.credentials.rds[:host] %>
+  database: <%= Rails.application.credentials.rds[:database] %>
+  username: <%= Rails.application.credentials.rds[:username] %>
+  password: <%= Rails.application.credentials.rds[:password] %>
+  # database: circleci_test_production
+  # username: circleci_test
+  # password: <%= ENV['CIRCLECI_TEST_DATABASE_PASSWORD'] %>
