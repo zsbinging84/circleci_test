@@ -20,7 +20,7 @@ jobs:
             - add_ssh_keys:
             # CircleCI に登録した環境変数を使って SSH
             - run: ssh ${USER_NAME}@${HOST_NAME} \
-                'cd ~ 
+                'cd ~ \
                     && git pull https://github.com/zsbinging84/circleci_test.git \
                     && docker-compose down \
                     && docker-compose up --build -d '
