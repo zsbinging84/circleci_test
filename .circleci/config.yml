@@ -22,7 +22,7 @@ jobs:
             - run: 
                 name: do the deploy
                 command: |
-                    ssh ${USER_NAME}@${HOST_NAME} 'cd ~/circleci_test && git pull https://github.com/zsbinging84/circleci_test.git && docker-compose down'
+                    ssh ${USER_NAME}@${HOST_NAME} 'cd ~/circleci_test && git pull https://github.com/zsbinging84/circleci_test.git && docker-compose down && docker-compose up --build -d'
  
 workflows:
     version: 2
