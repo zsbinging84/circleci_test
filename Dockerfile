@@ -18,8 +18,13 @@ RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
     | tee /etc/apt/sources.list.d/yarn.list \
     && apt-get update && apt-get install -y yarn
 
+
 WORKDIR /circleci_test
-COPY . .
-RUN rm -f /circleci_test/tmp/pids/server.pid
+COPY Gemfile /circleci_test
+COPY Gemfile.lock /circleci_test
+
 RUN bundle install
+
+RUN rm -f /circleci_test/tmp/pids/server.pid
+
 CMD ["rails","s","-b","0.0.0.0"]
