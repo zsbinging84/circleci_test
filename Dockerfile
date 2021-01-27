@@ -22,4 +22,4 @@ WORKDIR /circleci_test
 COPY . .
 RUN rm -f /circleci_test/tmp/pids/server.pid
 RUN bundle install
-CMD["rails","s","-b","0.0.0.0"]
+CMD ["rails","s","-b","0.0.0.0"]
