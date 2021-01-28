@@ -17,8 +17,6 @@ services:
     command: bundle exec puma -C config/puma.rb
     environment:
       - RAILS_ENV=production
-    depends_on:
-      - db
   web:
     build:
       context: containers/nginx
