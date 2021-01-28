@@ -18,13 +18,17 @@ RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
     | tee /etc/apt/sources.list.d/yarn.list \
     && apt-get update && apt-get install -y yarn
 
-
-WORKDIR /circleci_test
-COPY Gemfile /circleci_test
-COPY Gemfile.lock /circleci_test
+RUN mkdir /webapp
+WORKDIR /webapp
+COPY Gemfile /webapp
+COPY Gemfile.lock /webapp
 
 RUN bundle install
 
-RUN rm -f /circleci_test/tmp/pids/server.pid
+RUN rm -f /webapp/tmp/pids/server.pid
 
-CMD ["rails","s","-b","0.0.0.0"]
+# ホストのアプリケーションディレクトリ内をすべてコンテナにコピー
+ADD . /webapp
+
+# puma.sockを配置するディレクトリを作成
+RUN mkdir -p tmp/sockets

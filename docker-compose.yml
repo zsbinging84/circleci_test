@@ -2,6 +2,10 @@ version: '3'
 
 volumes:
   db-data:
+  public-data:
+  tmp-data:
+  log-data:
+
 
 services:
   db:
@@ -11,17 +15,24 @@ services:
     environment:
       - 'POSTGRES_USER=postgres'
       - 'POSTGRES_PASSWORD=postgres'
-  web:
+  app:
     build: .
     volumes:
-      - .:/circleci_test
-    ports:
-      - "3000:3000"
-    environment:
-      - 'RAILS_ENV=development'
+      - .:/webapp
+      - public-data:/webapp/public
+      - tmp-data:/webapp/tmp
+      - log-data:/webapp/log
+    command: bundle exec puma -C config/puma.rb
     depends_on:
       - db
-    links:
-      - db
-    stdin_open: true
-    tty: true
+  web:
+    build:
+      context: containers/nginx
+    volumes:
+      - public-data:/webapp/public
+      - tmp-data:/webapp/tmp
+      - ./containers/nginx/log:/var/log/nginx/
+    ports:
+      - 80:80
+    depends_on:
+      - app
