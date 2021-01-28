@@ -1,13 +1,32 @@
 version: '3'
 
+volumes:
+  db-data:
+  public-data:
+  tmp-data:
+  log-data:
+
 services:
-  web:
+  app:
     build: .
     volumes:
-      - .:/circleci_test
-    ports:
-      - "80:3000"
+      - .:/webapp
+      - public-data:/webapp/public
+      - tmp-data:/webapp/tmp
+      - log-data:/webapp/log
+    command: bundle exec puma -C config/puma.rb
     environment:
-      - 'RAILS_ENV=production'
-    stdin_open: true
-    tty: true
+      - RAILS_ENV=production
+    depends_on:
+      - db
+  web:
+    build:
+      context: containers/nginx
+    volumes:
+      - public-data:/webapp/public
+      - tmp-data:/webapp/tmp
+      - ./containers/nginx/log:/var/log/nginx/
+    ports:
+      - 80:80
+    depends_on:
+      - app
