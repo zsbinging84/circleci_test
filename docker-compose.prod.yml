@@ -6,6 +6,14 @@ volumes:
   tmp-data:
   log-data:
 
+
+
+
+
+
+
+
+
 services:
   app:
     build: .
