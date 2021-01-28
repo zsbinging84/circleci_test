@@ -14,9 +14,9 @@ services:
       - public-data:/webapp/public
       - tmp-data:/webapp/tmp
       - log-data:/webapp/log
-    command: bundle exec puma -C config/puma.rb
     environment:
       - RAILS_ENV=production
+    command: bundle exec puma -C config/puma.rb
   web:
     image: zsbing84/nginx
     volumes:
