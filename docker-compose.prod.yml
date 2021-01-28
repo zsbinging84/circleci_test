@@ -13,7 +13,6 @@ services:
       - .:/webapp
       - public-data:/webapp/public
       - tmp-data:/webapp/tmp
-      - log-data:/webapp/log
     environment:
       - RAILS_ENV=production
     command: bundle exec puma -C config/puma.rb
