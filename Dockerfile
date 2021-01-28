@@ -26,6 +26,9 @@ COPY Gemfile.lock /webapp
 
 RUN bundle install
 
+RUN webpacker:install 
+RUN webpacker:compile 
+
 RUN rm -f /webapp/tmp/pids/server.pid
 
 # ホストのアプリケーションディレクトリ内をすべてコンテナにコピー
