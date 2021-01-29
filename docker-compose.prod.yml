@@ -9,7 +9,6 @@ services:
     image: zsbing84/circleci-test
     volumes:
       - .:/webapp
-      # - public-data:/webapp/public
       - tmp-data:/webapp/tmp
     environment:
       - RAILS_ENV=production
@@ -19,7 +18,6 @@ services:
     image: zsbing84/nginx-test
     volumes:
       - tmp-data:/webapp/tmp
-      # - public-data:/webapp/public
       - ./containers/nginx/log:/var/log/nginx/
     ports:
       - 80:80
