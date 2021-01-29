@@ -22,7 +22,7 @@ services:
       - tmp-data:/webapp/tmp
     environment:
       - EDITOR=vim      
-    command: bundle exec puma -C config/puma.rb
+    command: rails s
     depends_on:
       - db
   web:
