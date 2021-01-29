@@ -27,9 +27,3 @@ COPY Gemfile.lock /webapp
 RUN bundle install
 
 RUN rm -f /webapp/tmp/pids/server.pid
-
-# ホストのアプリケーションディレクトリ内をすべてコンテナにコピー
-ADD . /webapp
-
-# puma.sockを配置するディレクトリを作成
-RUN mkdir -p tmp/sockets
