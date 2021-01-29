@@ -6,7 +6,6 @@ volumes:
   tmp-data:
   log-data:
 
-
 services:
   db:
     image: postgres
@@ -21,7 +20,8 @@ services:
       - .:/webapp
       - public-data:/webapp/public
       - tmp-data:/webapp/tmp
-      - log-data:/webapp/log
+    environment:
+      - EDITOR=vim      
     command: bundle exec puma -C config/puma.rb
     depends_on:
       - db

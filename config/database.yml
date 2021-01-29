@@ -17,16 +17,16 @@
 default: &default
   # For details on connection pooling, see Rails configuration guide
   # https://guides.rubyonrails.org/configuring.html#database-pooling
-  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
-
-development:
-  <<: *default
   adapter: postgresql
-  encoding: unicode
+  encoding: utf8
   host: db
   user: postgres
   port: 5432
   password: postgres
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+
+development:
+  <<: *default
   database: circleci_test_development
 
   # The specified database role being used to connect to postgres.
@@ -83,7 +83,6 @@ test:
 #     url: <%= ENV['DATABASE_URL'] %>
 #
 production:
-  <<: *default
   adapter: mysql2
   encoding: utf8
   host: <%= Rails.application.credentials.rds[:host] %>

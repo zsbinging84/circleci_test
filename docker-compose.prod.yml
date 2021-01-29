@@ -15,7 +15,8 @@ services:
       - tmp-data:/webapp/tmp
     environment:
       - RAILS_ENV=production
-    command: bundle exec puma -C config/puma.rb
+    #command: bundle exec puma -C config/puma.rb
+    command: rails s -b 0.0.0.0
   web:
     image: zsbing84/nginx-test
     volumes:
