@@ -1,11 +1,5 @@
   version: '3'
 
-volumes:
-  db-data:
-  public-data:
-  tmp-data:
-  log-data:
-
 services:
   app:
     image: zsbing84/circleci-test
