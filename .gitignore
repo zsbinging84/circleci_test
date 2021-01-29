@@ -36,4 +36,4 @@ yarn-debug.log*
 .yarn-integrity
 *.pem
 
-/containers/*
+/containers/nginx/log/*
