@@ -1,4 +1,4 @@
-version: '3'
+  version: '3'
 
 volumes:
   db-data:
@@ -11,16 +11,17 @@ services:
     image: zsbing84/circleci-test
     volumes:
       - .:/webapp
-      - public-data:/webapp/public
-      - tmp-data:/webapp/tmp
+      # - public-data:/webapp/public
+      # - tmp-data:/webapp/tmp
     environment:
       - RAILS_ENV=production
     command: rails s
   web:
     image: zsbing84/nginx-test
     volumes:
-      - public-data:/webapp/public
-      - tmp-data:/webapp/tmp
+      # - public-data:/webapp/public
+      # - tmp-data:/webapp/tmp
+      - ./tmp:/webapp/tmp
       - ./containers/nginx/log:/var/log/nginx/
     ports:
       - 80:80
